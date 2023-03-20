@@ -1,9 +1,10 @@
+import types
 import telebot
 import wikipedia
 
 # ссылка на бота t.me/wikis_new_bot
 
-bot = telebot.TeleBot('6278030582:AAGFYNpN-xcpdsYAxxSXJUGaoIKw-y2jYjc')
+bot = telebot.TeleBot('')
 global lang
 lang = 'ru'
 
@@ -65,11 +66,25 @@ def get_word_message(message):
     try:
         wikipedia.set_lang(lang)
         result = wikipedia.summary(str(message.text))
+        web = wikipedia.page(str(message.text))
+        
         bot.send_message(message.chat.id, text='Вот что я смог найти:')
         bot.send_message(message.chat.id, result)
+        markup = telebot.types.InlineKeyboardMarkup()
+        button1 = telebot.types.InlineKeyboardButton(
+            text="Статья в википедии", url=str(web.url))
+        markup.add(button1)
+        bot.send_message(message.chat.id, "Ссылка на полную статью", reply_markup=markup)
     except:
         bot.send_message(message.chat.id, text='К сожалению,  я не смог найти данное слово в базе Wikipedia')
-
+        markup = telebot.types.InlineKeyboardMarkup()
+        button1 = telebot.types.InlineKeyboardButton(
+            text="Результаты поиска в Яндекс", url="""https://yandex.ru/search/?text="""
+            + message.text.replace(' ', "+") +
+            """&lr=50&search_source=yaru_desktop_common""")
+        markup.add(button1)
+        bot.send_message(
+            message.chat.id, "Можете найти в интернете по ссылке:", reply_markup=markup)
 bot.infinity_polling()
 
 
